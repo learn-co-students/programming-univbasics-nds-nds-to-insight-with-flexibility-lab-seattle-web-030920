@@ -34,48 +34,108 @@ end
 # Your code after this point
 
 def movies_with_director_key(name, movies_collection)
-  # GOAL: For each Hash in an Array (movies_collection), provide a collection
-  # of movies and a directors name to the movie_with_director_name method
-  # and accumulate the returned Array of movies into a new Array that's
-  # returned by this method.
-  #
-  # INPUT:
-  # * name: A director's name
-  # * movies_collection: An Array of Hashes where each Hash represents a movie
-  #
-  # RETURN:
-  #
-  # Array of Hashes where each Hash represents a movie; however, they should all have a
-  # :director_name key. This addition can be done by using the provided
-  # movie_with_director_name method
+  movies_with_director_key_array = []
+  movie_index = 0 
+  
+  while movie_index < movies_collection.length do
+    movies_with_director_key_array << movie_with_director_name(name, movies_collection[movie_index])
+    movie_index += 1 
+  end
+  movies_with_director_key_array
 end
 
+def find_gross_by_director_and_title (director, title, repeated_title_index)
+  a = 0 
+  retrieved = []
+  
+  #Looking for #{director} and #{title} in directors_database    
+  while a < directors_database.length do
+    if directors_database[a][:name] == director
+      b = 0  
+      found = false
+      
+      while b < directors_database[a][:movies].length && !found do
+        if directors_database[a][:movies][b][:title] == title 
+          if repeated_title_index == 1 
+            b += 1 
+          end
+          
+          retrieved << directors_database[a][:movies][b][:studio]
+          retrieved << directors_database[a][:movies][b][:worldwide_gross]
+          found = true
+        end
+        b += 1
+      end
+    end          
+    a += 1
+  end
+  retrieved 
+end
 
 def gross_per_studio(collection)
-  # GOAL: Given an Array of Hashes where each Hash represents a movie,
-  # return a Hash that includes the total worldwide_gross of all the movies from
-  # each studio.
-  #
-  # INPUT:
-  # * collection: Array of Hashes where each Hash where each Hash represents a movie
-  #
-  # RETURN:
-  #
-  # Hash whose keys are the studio names and whose values are the sum
-  # total of all the worldwide_gross numbers for every movie in the input Hash
+  
+  studio_index = 0 
+  studio_gross_hash = {}
+
+  while studio_index < collection.length do
+    gross = 0 
+    
+    #if given director+title
+    if !collection[studio_index][:studio] || !collection[studio_index][:worldwide_gross]
+
+      #is this title repeated in collection?
+      verify_index = 0
+      repeated_title = 0 
+      
+      while verify_index < studio_index
+        if collection[verify_index][:title] == collection[studio_index][:title]
+          pp "Found #{collection[studio_index][:title]} repeated."
+          repeated_title = 1 
+        end
+        verify_index += 1 
+      end
+      
+      director = collection[studio_index][:director_name]
+      title = collection[studio_index][:title]
+      
+      studio_name = find_gross_by_director_and_title(director, title, repeated_title)[0]
+      gross = find_gross_by_director_and_title(director, title, repeated_title)[1]
+
+    #else given studio + gross
+    else
+      studio_name = collection[studio_index][:studio]
+      gross = collection[studio_index][:worldwide_gross]
+    end
+
+    if !studio_gross_hash[studio_name]
+      studio_gross_hash[studio_name] = gross
+    else
+      studio_gross_hash[studio_name] += gross
+    end
+
+    studio_index += 1 
+  end 
+  
+  studio_gross_hash
 end
 
 def movies_with_directors_set(source)
-  # GOAL: For each director, find their :movies Array and stick it in a new Array
-  #
-  # INPUT:
-  # * source: An Array of Hashes containing director information including
-  # :name and :movies
-  #
-  # RETURN:
-  #
-  # Array of Arrays containing all of a director's movies. Each movie will need
-  # to have a :director_name key added to it.
+  director_index = 0 
+  return_array = []
+  
+  while director_index < source.length do 
+    director = source[director_index][:name]
+    film_index = 0 
+    
+    while film_index < source[director_index][:movies].length do
+      film_title = source[director_index][:movies][film_index][:title]
+      return_array << [{:title => film_title, :director_name => director}]
+      film_index += 1 
+    end
+    director_index += 1 
+  end
+  
+  return_array
 end
 
 # ----------------    End of Your Code Region --------------------

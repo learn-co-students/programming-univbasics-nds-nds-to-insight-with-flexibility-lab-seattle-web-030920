@@ -1,6 +1,6 @@
 # Provided, don't edit
 require 'directors_database'
-
+require 'pp'
 # A method we're giving you. This "flattens"  Arrays of Arrays so: [[1,2],
 # [3,4,5], [6]] => [1,2,3,4,5,6].
 
@@ -21,7 +21,7 @@ def flatten_a_o_a(aoa)
 end
 
 def movie_with_director_name(director_name, movie_data)
-  { 
+  {
     :title => movie_data[:title],
     :worldwide_gross => movie_data[:worldwide_gross],
     :release_year => movie_data[:release_year],
@@ -48,6 +48,12 @@ def movies_with_director_key(name, movies_collection)
   # Array of Hashes where each Hash represents a movie; however, they should all have a
   # :director_name key. This addition can be done by using the provided
   # movie_with_director_name method
+  result = []
+  movies_collection.each do |movie|
+    current_movie = movie_with_director_name(name, movie)
+    result << current_movie
+  end
+  result
 end
 
 
@@ -63,6 +69,18 @@ def gross_per_studio(collection)
   #
   # Hash whose keys are the studio names and whose values are the sum
   # total of all the worldwide_gross numbers for every movie in the input Hash
+  result = {}
+  i = 0
+
+  while i < collection.length do
+    current_movie = collection[i]
+    current_movie_studio = current_movie[:studio]
+    current_movie_gross = current_movie[:worldwide_gross]
+    result[current_movie_studio] = 0 if result[current_movie_studio] == nil
+    result[current_movie_studio] = result[current_movie_studio] + current_movie_gross
+    i += 1
+  end
+  result
 end
 
 def movies_with_directors_set(source)
@@ -76,8 +94,18 @@ def movies_with_directors_set(source)
   #
   # Array of Arrays containing all of a director's movies. Each movie will need
   # to have a :director_name key added to it.
-end
+  result = []
+  i = 0
 
+  while i < source.length do
+    current_director = source[i][:name]
+    current_movies_collection = source[i][:movies]
+    current_array = movies_with_director_key(current_director, current_movies_collection)
+    result << current_array
+    i += 1
+  end
+  result
+end
 # ----------------    End of Your Code Region --------------------
 # Don't edit the following code! Make the methods above work with this method
 # call code. You'll have to "see-saw" to get this to work!
